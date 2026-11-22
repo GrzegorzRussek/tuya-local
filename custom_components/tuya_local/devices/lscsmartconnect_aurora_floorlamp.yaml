@@ -1,0 +1,196 @@
+name: Aurora floor lamp
+products:
+  - id: yivl1cgcemaj5czl
+    manufacturer: LSC Smart Connect
+    model: Smart Aurora Floor Lamp
+    model_id: "3225183"
+entities:
+  # Lower "White" light, the main light. DP 20 is the master switch: the
+  # device turns it on when any of the three lights is on, and turning it
+  # off switches all three lights off.
+  - entity: light
+    dps:
+      - id: 103
+        type: boolean
+        name: switch
+      - id: 22
+        type: integer
+        name: brightness
+        range:
+          min: 10
+          max: 1000
+      - id: 23
+        type: integer
+        name: color_temp
+        range:
+          min: 0
+          max: 1000
+        mapping:
+          - target_range:
+              min: 2700
+              max: 6500
+  # Middle "Ambient" light. DP 106 selects static colour or an animated
+  # mode, DP 107 selects which mode. The device does not report DP 106,
+  # so tuya-local remembers the last value it set.
+  - entity: light
+    translation_key: ambient_light
+    dps:
+      - id: 102
+        type: boolean
+        name: switch
+      - id: 106
+        type: string
+        name: color_mode
+        optional: true
+        mapping:
+          - dps_val: colour
+            value: hs
+          - dps_val: mode
+            value: Ambient
+      - id: 24
+        type: hex
+        name: rgbhsv
+        format:
+          - name: h
+            bytes: 2
+            range:
+              min: 0
+              max: 360
+          - name: s
+            bytes: 2
+            range:
+              min: 0
+              max: 1000
+          - name: v
+            bytes: 2
+            range:
+              min: 0
+              max: 1000
+      - id: 107
+        type: string
+        name: effect
+        optional: true
+        mapping:
+          - dps_val: "1"
+            value: Iceland Blue
+            constraint: color_mode
+            conditions:
+              - dps_val: mode
+                value: Iceland Blue
+              - dps_val: colour
+                value: "off"
+          - dps_val: "2"
+            value: Sea Of Clouds
+            constraint: color_mode
+            conditions:
+              - dps_val: mode
+                value: Sea Of Clouds
+              - dps_val: colour
+                value: "off"
+          - dps_val: "3"
+            value: Firefly Night
+            constraint: color_mode
+            conditions:
+              - dps_val: mode
+                value: Firefly Night
+              - dps_val: colour
+                value: "off"
+          - dps_val: "4"
+            value: Grassland
+            constraint: color_mode
+            conditions:
+              - dps_val: mode
+                value: Grassland
+              - dps_val: colour
+                value: "off"
+          - dps_val: "5"
+            value: Late Autumn
+            constraint: color_mode
+            conditions:
+              - dps_val: mode
+                value: Late Autumn
+              - dps_val: colour
+                value: "off"
+          - dps_val: "6"
+            value: Party
+            constraint: color_mode
+            conditions:
+              - dps_val: mode
+                value: Party
+              - dps_val: colour
+                value: "off"
+  # Upper "Aurora" light, a projector with 8 fixed colour animations.
+  - entity: light
+    name: Aurora
+    icon: "mdi:aurora"
+    dps:
+      - id: 101
+        type: boolean
+        name: switch
+      - id: 110
+        type: integer
+        name: brightness
+        optional: true
+        range:
+          min: 10
+          max: 1000
+      - id: 104
+        type: string
+        name: effect
+        optional: true
+        mapping:
+          - dps_val: "1"
+            value: Red
+          - dps_val: "2"
+            value: Green
+          - dps_val: "3"
+            value: Blue
+          - dps_val: "4"
+            value: Red & Green
+          - dps_val: "5"
+            value: Red & Blue
+          - dps_val: "6"
+            value: Green & Blue
+          - dps_val: "7"
+            value: Red & Green & Blue 1
+          - dps_val: "8"
+            value: Red & Green & Blue 2
+  - entity: switch
+    dps:
+      - id: 20
+        type: boolean
+        name: switch
+  - entity: number
+    name: Ambient speed
+    icon: "mdi:speedometer"
+    category: config
+    dps:
+      - id: 108
+        type: integer
+        name: value
+        optional: true
+        unit: "%"
+        range:
+          min: 1
+          max: 100
+  - entity: time
+    translation_key: timer
+    category: config
+    dps:
+      - id: 26
+        type: integer
+        name: second
+        range:
+          min: 0
+          max: 86400
+  - entity: sensor
+    translation_key: time_remaining
+    category: diagnostic
+    class: duration
+    hidden: true
+    dps:
+      - id: 109
+        type: integer
+        name: sensor
+        readonly: true
+        unit: min
